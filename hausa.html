@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koyo — Learn Hausa</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a6b4a;
+    --green-light: #e8f5ee;
+    --green-mid: #2d9e6b;
+    --gold: #c8922a;
+    --gold-light: #fdf3e3;
+    --cream: #faf8f3;
+    --dark: #1a1a18;
+    --gray: #6b6b65;
+    --border: #e2ddd4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--dark); min-height: 100vh; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: white; position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold); letter-spacing: -0.5px; }
+  .logo span { color: var(--green); }
+  .nav-tabs { display: flex; gap: 4px; background: var(--cream); padding: 4px; border-radius: 12px; border: 1px solid var(--border); }
+  .nav-tab { padding: 8px 18px; border-radius: 9px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--gray); transition: all 0.2s; }
+  .nav-tab.active { background: white; color: var(--gold); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .streak { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--gold); background: var(--gold-light); padding: 6px 14px; border-radius: 20px; }
+  .section { display: none; padding: 2rem; max-width: 900px; margin: 0 auto; }
+  .section.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .hero { text-align: center; padding: 3rem 0 2rem; }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--dark); line-height: 1.1; margin-bottom: 0.5rem; }
+  .hero h1 span { color: var(--gold); }
+  .hero p { color: var(--gray); font-size: 1.1rem; margin-bottom: 2rem; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 2rem; }
+  .stat { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; text-align: center; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); }
+  .stat-label { font-size: 13px; color: var(--gray); margin-top: 2px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 1rem; color: var(--dark); }
+  .lesson-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .lesson-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; cursor: pointer; transition: all 0.2s; }
+  .lesson-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(200,146,42,0.15); }
+  .lesson-card.done { border-left: 3px solid var(--gold); }
+  .lesson-emoji { font-size: 1.8rem; margin-bottom: 8px; }
+  .lesson-name { font-weight: 500; font-size: 15px; }
+  .lesson-meta { font-size: 12px; color: var(--gray); margin-top: 3px; }
+  .badge { display: inline-block; margin-top: 8px; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+  .badge-done { background: var(--gold-light); color: var(--gold); }
+  .badge-new { background: #e8f0fe; color: #1a5dc8; }
+  .fc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .fc-counter { font-size: 14px; color: var(--gray); font-weight: 500; }
+  .fc-nav { display: flex; gap: 8px; }
+  .fc-nav button { border: 1px solid var(--border); background: white; border-radius: 10px; padding: 8px 18px; font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; transition: all 0.15s; }
+  .fc-nav button:hover { border-color: var(--gold); color: var(--gold); }
+  .card-scene { perspective: 1000px; margin-bottom: 1rem; cursor: pointer; }
+  .card-3d { width: 100%; height: 220px; transform-style: preserve-3d; transition: transform 0.5s; position: relative; }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background: white; border: 1px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+  .card-back { transform: rotateY(180deg); background: var(--gold-light); border-color: var(--gold); }
+  .card-en { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--dark); }
+  .card-ha { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--gold); }
+  .card-sub { font-size: 13px; color: var(--gray); margin-top: 8px; }
+  .flip-hint { text-align: center; font-size: 13px; color: var(--gray); margin-bottom: 1.5rem; }
+  .fc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btn-learning { padding: 12px; border: 1px solid #f0a0a0; background: #fff5f5; color: #c0392b; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .btn-known { padding: 12px; border: 1px solid var(--gold); background: var(--gold-light); color: var(--gold); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .quiz-progress { display: flex; gap: 5px; margin-bottom: 2rem; }
+  .qp-dot { flex: 1; height: 5px; border-radius: 3px; background: var(--border); }
+  .qp-dot.done { background: var(--gold); }
+  .qp-dot.current { background: var(--gold); opacity: 0.4; }
+  .quiz-q { text-align: center; margin-bottom: 2rem; }
+  .quiz-label { font-size: 13px; color: var(--gray); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .quiz-word { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--dark); }
+  .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  .quiz-opt { padding: 16px; border: 1px solid var(--border); border-radius: 14px; background: white; font-family: 'DM Sans', sans-serif; font-size: 15px; cursor: pointer; transition: all 0.15s; color: var(--dark); text-align: center; }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-light); }
+  .quiz-opt.correct { background: var(--gold-light); border-color: var(--gold); color: var(--gold); font-weight: 500; }
+  .quiz-opt.wrong { background: #fff5f5; border-color: #e74c3c; color: #c0392b; }
+  .quiz-feedback { text-align: center; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: 500; margin-bottom: 1rem; }
+  .fb-correct { background: var(--gold-light); color: var(--gold); }
+  .fb-wrong { background: #fff5f5; color: #c0392b; }
+  .btn-next { width: 100%; padding: 14px; background: var(--gold); color: white; border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .btn-next:hover { background: #a87520; }
+  .translate-wrap { display: flex; flex-direction: column; gap: 12px; }
+  .translate-box { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; }
+  .tbox-label { font-size: 12px; font-weight: 500; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .tbox-input { width: 100%; border: none; background: transparent; font-size: 1.2rem; font-family: 'DM Sans', sans-serif; color: var(--dark); outline: none; resize: none; min-height: 80px; }
+  .tbox-output { font-size: 1.2rem; font-family: 'Playfair Display', serif; color: var(--gold); min-height: 40px; }
+  .translate-btn { width: 100%; padding: 14px; background: var(--gold); color: white; border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; margin-bottom: 1rem; }
+  .translate-btn:hover { background: #a87520; }
+  .translate-btn:disabled { background: var(--gray); cursor: not-allowed; }
+  .phrases-label { font-size: 13px; color: var(--gray); margin-bottom: 8px; }
+  .phrases { display: flex; flex-wrap: wrap; gap: 8px; }
+  .phrase { padding: 6px 14px; background: white; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.15s; color: var(--dark); }
+  .phrase:hover { border-color: var(--gold); color: var(--gold); }
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">Ko<span>yo</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="go('home')">Home</button>
+    <button class="nav-tab" onclick="go('flashcards')">Flashcards</button>
+    <button class="nav-tab" onclick="go('quiz')">Quiz</button>
+    <button class="nav-tab" onclick="go('translate')">Translate</button>
+  </div>
+  <div class="streak">🔥 3 day streak</div>
+</nav>
+
+<div class="section active" id="home">
+  <div class="hero">
+    <h1>Learn <span>Hausa</span><br>the right way</h1>
+    <p>Master vocabulary, practice translations, and test your knowledge</p>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num" id="sWords">12</div><div class="stat-label">words learned</div></div>
+    <div class="stat"><div class="stat-num" id="sStreak">3</div><div class="stat-label">day streak</div></div>
+    <div class="stat"><div class="stat-num" id="sAcc">78%</div><div class="stat-label">quiz accuracy</div></div>
+  </div>
+  <div class="section-title">Lessons</div>
+  <div class="lesson-grid">
+    <div class="lesson-card done" onclick="go('flashcards')"><div class="lesson-emoji">👋</div><div class="lesson-name">Greetings</div><div class="lesson-meta">8 words</div><span class="badge badge-done">✓ Done</span></div>
+    <div class="lesson-card" onclick="go('flashcards')"><div class="lesson-emoji">🔢</div><div class="lesson-name">Numbers</div><div class="lesson-meta">10 words</div><span class="badge badge-new">Start</span></div>
+    <div class="lesson-card" onclick="go('flashcards')"><div class="lesson-emoji">🍎</div><div class="lesson-name">Food</div><div class="lesson-meta">12 words</div><span class="badge badge-new">Start</span></div>
+    <div class="lesson-card" onclick="go('flashcards')"><div class="lesson-emoji">👨‍👩‍👧</div><div class="lesson-name">Family</div><div class="lesson-meta">10 words</div><span class="badge badge-new">Start</span></div>
+    <div class="lesson-card" onclick="go('flashcards')"><div class="lesson-emoji">🏠</div><div class="lesson-name">Places</div><div class="lesson-meta">14 words</div><span class="badge badge-new">Start</span></div>
+    <div class="lesson-card" onclick="go('flashcards')"><div class="lesson-emoji">🎨</div><div class="lesson-name">Colors</div><div class="lesson-meta">8 words</div><span class="badge badge-new">Start</span></div>
+  </div>
+</div>
+
+<div class="section" id="flashcards">
+  <div class="fc-header">
+    <div class="fc-nav">
+      <button onclick="prevCard()">← Prev</button>
+      <button onclick="nextCard()">Next →</button>
+    </div>
+    <div class="fc-counter" id="fcCounter">1 / 8</div>
+  </div>
+  <div class="card-scene" onclick="flipCard()">
+    <div class="card-3d" id="card3d">
+      <div class="card-face">
+        <div class="card-en" id="cEn">Good morning</div>
+        <div class="card-sub">tap to reveal Hausa</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-ha" id="cHa">Barka da safiya</div>
+      </div>
+    </div>
+  </div>
+  <p class="flip-hint">Tap card to flip</p>
+  <div class="fc-actions">
+    <button class="btn-learning" onclick="nextCard()">Still learning</button>
+    <button class="btn-known" onclick="markKnown()">Got it ✓</button>
+  </div>
+</div>
+
+<div class="section" id="quiz">
+  <div class="quiz-progress" id="qProgress"></div>
+  <div class="quiz-q">
+    <div class="quiz-label">What is the Hausa word for:</div>
+    <div class="quiz-word" id="qWord">Good morning</div>
+  </div>
+  <div class="quiz-options" id="qOptions"></div>
+  <div class="quiz-feedback" id="qFeedback" style="display:none;"></div>
+  <button class="btn-next" id="qNext" style="display:none;" onclick="nextQuiz()">Next →</button>
+</div>
+
+<div class="section" id="translate">
+  <div class="translate-wrap">
+    <div class="translate-box">
+      <div class="tbox-label">English</div>
+      <textarea class="tbox-input" id="tInput" placeholder="Type something in English..." rows="3"></textarea>
+    </div>
+    <button class="translate-btn" id="tBtn" onclick="doTranslate()">Translate to Hausa</button>
+    <div class="translate-box">
+      <div class="tbox-label">Hausa</div>
+      <div class="tbox-output" id="tOutput">—</div>
+    </div>
+    <div>
+      <div class="phrases-label">Try a phrase:</div>
+      <div class="phrases">
+        <span class="phrase" onclick="setPhrase('Good morning')">Good morning</span>
+        <span class="phrase" onclick="setPhrase('Thank you')">Thank you</span>
+        <span class="phrase" onclick="setPhrase('How are you?')">How are you?</span>
+        <span class="phrase" onclick="setPhrase('I love you')">I love you</span>
+        <span class="phrase" onclick="setPhrase('Good night')">Good night</span>
+        <span class="phrase" onclick="setPhrase('Welcome')">Welcome</span>
+        <span class="phrase" onclick="setPhrase('What is your name?')">What is your name?</span>
+        <span class="phrase" onclick="setPhrase('Where are you going?')">Where are you going?</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const vocab = [
+  {en:"Good morning",ha:"Barka da safiya"},
+  {en:"Good afternoon",ha:"Barka da rana"},
+  {en:"Good evening",ha:"Barka da yamma"},
+  {en:"Welcome",ha:"Barka da zuwa"},
+  {en:"Thank you",ha:"Na gode"},
+  {en:"How are you?",ha:"Yaya kake?"},
+  {en:"I am fine",ha:"Ina lafiya"},
+  {en:"Goodbye",ha:"Sai anjima"}
+];
+
+let cIdx=0,flipped=false,qIdx=0,qAnswered=false,qCorrect=0;
+
+function go(tab){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  const tabs=['home','flashcards','quiz','translate'];
+  document.querySelectorAll('.nav-tab')[tabs.indexOf(tab)].classList.add('active');
+  if(tab==='quiz')initQuiz();
+}
+
+function updateCard(){
+  const c=vocab[cIdx];
+  document.getElementById('cEn').textContent=c.en;
+  document.getElementById('cHa').textContent=c.ha;
+  document.getElementById('fcCounter').textContent=(cIdx+1)+' / '+vocab.length;
+  document.getElementById('card3d').classList.remove('flipped');
+  flipped=false;
+}
+function flipCard(){flipped=!flipped;document.getElementById('card3d').classList.toggle('flipped',flipped);}
+function nextCard(){cIdx=(cIdx+1)%vocab.length;updateCard();}
+function prevCard(){cIdx=(cIdx-1+vocab.length)%vocab.length;updateCard();}
+function markKnown(){document.getElementById('sWords').textContent=parseInt(document.getElementById('sWords').textContent)+1;nextCard();}
+
+function initQuiz(){
+  qIdx=0;qCorrect=0;
+  renderProgress();renderQuestion();
+  document.getElementById('qNext').textContent='Next →';
+  document.getElementById('qNext').onclick=nextQuiz;
+}
+function renderProgress(){
+  const p=document.getElementById('qProgress');
+  p.innerHTML=vocab.slice(0,6).map((_,i)=>`<div class="qp-dot ${i<qIdx?'done':i===qIdx?'current':''}"></div>`).join('');
+}
+function renderQuestion(){
+  const q=vocab[qIdx%vocab.length];
+  document.getElementById('qWord').textContent=q.en;
+  document.getElementById('qFeedback').style.display='none';
+  document.getElementById('qNext').style.display='none';
+  qAnswered=false;
+  const wrongs=vocab.filter((_,i)=>i!==qIdx%vocab.length).sort(()=>Math.random()-0.5).slice(0,3).map(v=>v.ha);
+  const opts=[...wrongs,q.ha].sort(()=>Math.random()-0.5);
+  document.getElementById('qOptions').innerHTML=opts.map(o=>`<button class="quiz-opt" onclick="checkAnswer(this,'${o}','${q.ha}')">${o}</button>`).join('');
+}
+function checkAnswer(btn,chosen,correct){
+  if(qAnswered)return;
+  qAnswered=true;
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('qFeedback');
+  if(chosen===correct){btn.classList.add('correct');fb.textContent='✓ Correct!';fb.className='quiz-feedback fb-correct';qCorrect++;}
+  else{btn.classList.add('wrong');document.querySelectorAll('.quiz-opt').forEach(b=>{if(b.textContent===correct)b.classList.add('correct');});fb.textContent='✗ Answer: '+correct;fb.className='quiz-feedback fb-wrong';}
+  fb.style.display='block';
+  document.getElementById('qNext').style.display='block';
+  document.getElementById('sAcc').textContent=Math.round((qCorrect/(qIdx+1))*100)+'%';
+}
+function nextQuiz(){
+  qIdx++;
+  if(qIdx>=6){
+    document.getElementById('qWord').textContent='Quiz complete!';
+    document.getElementById('qOptions').innerHTML='';
+    document.getElementById('qFeedback').style.display='none';
+    const nb=document.getElementById('qNext');
+    nb.textContent='Start over';
+    nb.onclick=initQuiz;
+    nb.style.display='block';
+    return;
+  }
+  renderProgress();renderQuestion();
+}
+
+async function doTranslate(){
+  const text=document.getElementById('tInput').value.trim();
+  if(!text)return;
+  const btn=document.getElementById('tBtn');
+  btn.textContent='Translating...';
+  btn.disabled=true;
+  document.getElementById('tOutput').textContent='...';
+  try{
+    const res=await fetch('http://127.0.0.1:5003/translate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text})
+    });
+    const data=await res.json();
+    document.getElementById('tOutput').textContent=data.translation||data.error||'No result';
+  }catch(e){
+    document.getElementById('tOutput').textContent='Error: make sure app.py is running on port 5003';
+  }
+  btn.textContent='Translate to Hausa';
+  btn.disabled=false;
+}
+function setPhrase(p){document.getElementById('tInput').value=p;doTranslate();}
+
+updateCard();
+</script>
+</body>
+</html>
